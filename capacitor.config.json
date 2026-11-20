@@ -1,0 +1,9 @@
+{
+  "appId": "com.myuniverse.app",
+  "appName": "MY UNIVERSE",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
