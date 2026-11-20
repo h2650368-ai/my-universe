@@ -38,6 +38,9 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const url = new URL(request.url);
+    if (url.pathname === "/health" && request.method === "GET") {
+      return json({ ok: true, service: "MY UNIVERSE AI", configured: Boolean(env.OPENAI_API_KEY) }, 200, origin);
+    }
     if (!["/api/chat", "/api/realtime-token"].includes(url.pathname)) {
       return json({ error: "Not found" }, 404, origin);
     }
@@ -46,7 +49,7 @@ export default {
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
     if (!validOrigin(request)) return json({ error: "Origin not allowed" }, 403, origin);
-    if (!env.OPENAI_API_KEY) return json({ error: "AI service is not configured" }, 503, origin);
+    if (!env.OPENAI_API_KEY) return json({ error: "الخادم شغال لكن مفتاح الخدمة غير مضبوط في Cloudflare (OPENAI_API_KEY)." }, 503, origin);
 
     if (url.pathname === "/api/realtime-token") {
       let voiceBody = {};
@@ -117,7 +120,7 @@ export default {
         })
       });
       const result = await upstream.json();
-      if (!upstream.ok) return json({ error: "The AI provider could not complete the request" }, 502, origin);
+      if (!upstream.ok) return json({ error: "رفض مزود الذكاء الاصطناعي الطلب", provider_status: upstream.status, provider_code: result?.error?.code || result?.error?.type || "unknown" }, 502, origin);
       let reply = result.output_text || "";
       if (!reply && Array.isArray(result.output)) {
         reply = result.output.flatMap(x => x.content || [])
