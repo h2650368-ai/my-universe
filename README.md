@@ -1,6 +1,6 @@
-# MY UNIVERSE — RED MATRIX
+# MY UNIVERSE — Immersive Command Deck
 
-A mobile-first personal space with a red cyber-terminal interface, local notes, goals, photos, reminders, AI chat and live voice conversations.
+A mobile-first personal universe with an immersive red-and-obsidian command deck, animated orbital centerpiece, live status dashboard, bento navigation, local notes, goals, photos, reminders, AI chat and live voice conversations.
 
 ## Website
 
