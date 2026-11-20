@@ -51,7 +51,7 @@ The current reminder checker runs while the app is open and the browser or WebVi
 
 - Notes, goals, photos and chat history are currently stored locally in the current browser/app installation; they are not automatically synced to another device.
 - The AI backend receives the messages sent for each request. Do not send passwords, API keys or sensitive personal information.
-- The current AI persona adapts to the conversation context provided to it; persistent cross-device AI memory and user-controlled memory management are not implemented yet.
+- The AI can use up to 20 memory notes that the user explicitly saves, edits by deleting/re-adding, or clears from the AI screen. These notes stay on the device and are sent to the AI backend with requests; they are not synced between devices.
 - Export backups regularly. Clearing app data may remove local content.
 
 ## Publish the website
