@@ -13,7 +13,7 @@ const permissions = [
 ];
 for (const permission of permissions) {
   const tag = `<uses-permission android:name="${permission}" />`;
-  if (!xml.includes(tag)) xml = xml.replace("<manifest", "<manifest\\n    " + tag);
+  if (!xml.includes(tag)) xml = xml.replace("<manifest", "<manifest\n    " + tag);
 }
 
 const service = `
@@ -31,7 +31,7 @@ const service = `
         </service>
 `;
 if (!xml.includes("UniverseWallpaperService")) {
-  xml = xml.replace("</application>", service + "\\n    </application>");
+  xml = xml.replace("</application>", service + "\n    </application>");
 }
 writeFileSync(manifestPath, xml);
 
@@ -116,7 +116,6 @@ public class UniverseWallpaperService extends WallpaperService {
                 }
                 paint.setColor(Color.argb(150,120,170,255));
                 paint.setTextSize(Math.max(18,w*0.045f));
-                paint.setLetterSpacingSafe();
                 canvas.drawText("MY UNIVERSE",w*0.08f,h*0.12f,paint);
                 paint.setColor(Color.argb(90,170,190,230));
                 paint.setTextSize(Math.max(10,w*0.022f));
@@ -129,7 +128,7 @@ public class UniverseWallpaperService extends WallpaperService {
         }
     }
 }
-`.replace("                paint.setLetterSpacingSafe();\\n","");
+`.replace("                paint.setLetterSpacingSafe();\n","");
 mkdirSync(dirname(javaPath), {recursive:true});
 writeFileSync(javaPath, java);
 
