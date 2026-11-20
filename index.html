@@ -346,9 +346,10 @@ async function startVoiceChat(){
  if(!navigator.mediaDevices?.getUserMedia||!window.RTCPeerConnection){voiceStatus('المتصفح لا يدعم المكالمة الصوتية');return}
  const start=$('voiceStart'),stop=$('voiceStop');start.disabled=true;voiceStatus('بنجهز الاتصال...');
  try{
+  voiceStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  voiceStatus('تم السماح بالميكروفون — بنجهز جلسة الصوت...');
   const tokenResponse=await fetch(endpoint+'/api/realtime-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({memories:read('ai_memories').map(x=>x.text).slice(0,20)})});
   const tokenData=await tokenResponse.json();if(!tokenResponse.ok||!tokenData.token)throw new Error(tokenData.error||'تعذر تجهيز جلسة الصوت');
-  voiceStream=await navigator.mediaDevices.getUserMedia({audio:true});
   voicePeer=new RTCPeerConnection();
   voicePeer.ontrack=e=>{$('voiceRemoteAudio').srcObject=e.streams[0];$('voiceRemoteAudio').play().catch(()=>{})};
   voicePeer.onconnectionstatechange=()=>{if(voicePeer&&['failed','disconnected','closed'].includes(voicePeer.connectionState))voiceStatus('الاتصال انقطع')};
