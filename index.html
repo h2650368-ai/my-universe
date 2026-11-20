@@ -123,7 +123,7 @@ body:before{opacity:.12}
  <div class="voice-head"><span>🧠 ذاكرة مساعدك</span><span class="muted">بموافقتك فقط</span></div>
  <p class="muted" style="line-height:1.7">اكتب معلومات أو تفضيلات توافق إن المساعد يستخدمها في محادثاتك. تقدر تعدلها أو تمسحها في أي وقت، وهي محفوظة على جهازك.</p>
  <form class="form" onsubmit="saveAIMemory(event)"><textarea class="field" id="aiMemoryInput" rows="2" placeholder="مثلاً: أفضل الشرح بالمصري وبخطوات بسيطة..."></textarea><button class="btn secondary" type="submit">＋ احفظ في الذاكرة</button></form>
- <div id="aiMemoryList" class="list"></div>
+ <div id="aiMemoryList" class="list"></div><button class="danger" type="button" onclick="clearAIMemories()">مسح كل الذاكرة</button>
 </div>
 <div class="chat" id="chat" aria-live="polite"><div class="bubble ai" data-i18n="aiWelcome">أنا مساعدك داخل MY UNIVERSE. اسألني أو ابدأ باقتراح من فوق.</div></div><form class="chatbar" onsubmit="sendChat(event)"><textarea id="chatInput" class="field" rows="1" data-placeholder="messageAI" placeholder="اكتب رسالتك..."></textarea><button class="btn primary" id="sendAI" data-i18n="send">إرسال</button></form></section>
 
