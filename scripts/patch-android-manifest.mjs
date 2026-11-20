@@ -13,7 +13,11 @@ const permissions = [
 ];
 for (const permission of permissions) {
   const tag = `<uses-permission android:name="${permission}" />`;
-  if (!xml.includes(tag)) xml = xml.replace("<manifest", "<manifest\n    " + tag);
+  if (!xml.includes(tag)) {
+    const manifestOpenTag = xml.match(/<manifest\\b[^>]*>/);
+    if (!manifestOpenTag) throw new Error("AndroidManifest.xml has no opening manifest tag");
+    xml = xml.replace(manifestOpenTag[0], manifestOpenTag[0] + "\\n    " + tag);
+  }
 }
 
 const service = `
