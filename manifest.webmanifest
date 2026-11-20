@@ -1,15 +1,15 @@
 {
   "name": "MY UNIVERSE",
   "short_name": "Universe",
-  "description": "Your personal space for ideas, writing, memories, photos and goals.",
+  "description": "MY UNIVERSE — RED MATRIX personal dashboard, notes, goals and reminders.",
   "lang": "ar",
   "dir": "auto",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0e0f14",
-  "theme_color": "#101116",
+  "background_color": "#050507",
+  "theme_color": "#a90020",
   "icons": [
     {
       "src": "./icon.svg",
