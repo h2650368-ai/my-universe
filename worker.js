@@ -1,10 +1,12 @@
 const SITE_ORIGIN = "https://h2650368-ai.github.io";
-const MODEL = "gpt-6-luna";
+const TEXT_MODEL = "gpt-6-luna";
+const REALTIME_MODEL = "gpt-realtime-2.1";
+
+const PERSONA = `أنت المساعد الشخصي داخل MY UNIVERSE. اتكلم بالمصري البسيط لما المستخدم يتكلم بالمصري، وخليك مباشر وودود ومن غير مبالغة أو مجاملات مصطنعة. افهم أسلوبه تدريجيًا من الرسائل المتاحة، لكن لا تدّعي إنك تعرفه خارج المعلومات التي يشاركها أو إنك تحفظ كل شيء تلقائيًا. لا تحفظ أي معلومة شخصية في ذاكرة دائمة إلا بموافقة صريحة من المستخدم. وضّح أنك ذكاء اصطناعي ولست إنسانًا. احترم الخصوصية، ولا تطلب كلمات مرور أو مفاتيح سرية.`;
 
 function cors(origin) {
-  const allowed = origin === SITE_ORIGIN ? origin : SITE_ORIGIN;
   return {
-    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Origin": origin === SITE_ORIGIN ? origin : SITE_ORIGIN,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Vary": "Origin"
@@ -13,21 +15,58 @@ function cors(origin) {
 function json(data, status, origin) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...cors(origin), "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store" }
+    headers: { ...cors(origin), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }
   });
 }
+function validOrigin(request) {
+  return request.headers.get("Origin") === SITE_ORIGIN;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const url = new URL(request.url);
-    if (url.pathname !== "/api/chat") return json({ error: "Not found" }, 404, origin);
+    if (!["/api/chat", "/api/realtime-token"].includes(url.pathname)) {
+      return json({ error: "Not found" }, 404, origin);
+    }
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors(origin) });
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
-    if (origin !== SITE_ORIGIN) return json({ error: "Origin not allowed" }, 403, origin);
+    if (!validOrigin(request)) return json({ error: "Origin not allowed" }, 403, origin);
     if (!env.OPENAI_API_KEY) return json({ error: "AI service is not configured" }, 503, origin);
+
+    if (url.pathname === "/api/realtime-token") {
+      try {
+        const upstream = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + env.OPENAI_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            expires_after: { anchor: "created_at", seconds: 600 },
+            session: {
+              type: "realtime",
+              model: REALTIME_MODEL,
+              instructions: PERSONA,
+              output_modalities: ["audio"],
+              audio: {
+                input: { turn_detection: { type: "server_vad" } },
+                output: { voice: "marin" }
+              }
+            }
+          })
+        });
+        const result = await upstream.json();
+        if (!upstream.ok || !result.value) {
+          return json({ error: "Could not create a voice session. Check the API project and model access." }, 502, origin);
+        }
+        return json({ token: result.value, expires_at: result.expires_at, model: REALTIME_MODEL }, 200, origin);
+      } catch {
+        return json({ error: "Voice service temporarily unavailable" }, 502, origin);
+      }
+    }
 
     let body;
     try { body = await request.json(); }
@@ -56,16 +95,14 @@ export default {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: MODEL,
-          instructions: "You are PERSONAL AI inside MY UNIVERSE. Be helpful, clear, friendly, and concise. Reply in the language used by the user. Help with learning, planning, writing, and organizing ideas. Do not claim to remember information outside the messages provided.",
+          model: TEXT_MODEL,
+          instructions: PERSONA,
           input: messages,
           max_output_tokens: 600
         })
       });
       const result = await upstream.json();
-      if (!upstream.ok) {
-        return json({ error: "The AI provider could not complete the request" }, 502, origin);
-      }
+      if (!upstream.ok) return json({ error: "The AI provider could not complete the request" }, 502, origin);
       let reply = result.output_text || "";
       if (!reply && Array.isArray(result.output)) {
         reply = result.output.flatMap(x => x.content || [])
