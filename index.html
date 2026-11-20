@@ -33,6 +33,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
 #ai .card:first-of-type:after{content:"✧";position:absolute;right:20px;top:8px;font-size:74px;color:#e5d9ff18}
 #ai .chat{min-height:250px;max-height:52vh;overflow:auto;padding:14px;border:1px solid #c7b6ff1c;border-radius:24px;background:#090b14a8}
 .bubble{max-width:90%;padding:13px 16px;border-radius:19px;font-size:13px;box-shadow:0 8px 22px #0003}.bubble.ai{background:linear-gradient(145deg,#211d35,#171a2a);border:1px solid #c6b5ff20;border-bottom-left-radius:6px;color:#eee9ff}.bubble.user{background:linear-gradient(120deg,#d7c9ff,#9878f5);color:#1a1530;border-bottom-right-radius:6px}
+.voice-card{margin:14px 0;padding:18px;border:1px solid #ff334d44;background:radial-gradient(ellipse at 100% 0%,#ff334d20,transparent 55%),linear-gradient(145deg,#1b0d13,#0c0c12)}.voice-head{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#ff9aa8;font-size:12px;font-weight:800}.voice-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.voice-actions button:disabled{opacity:.4;cursor:not-allowed}#voiceRemoteAudio{display:none}
 .chatbar{position:sticky;bottom:84px;padding:9px;border:1px solid #c7b6ff2b;border-radius:22px;background:#111321ef;box-shadow:0 12px 40px #0007;backdrop-filter:blur(20px)}.chatbar .field{border:0;background:transparent;box-shadow:none}.chatbar .btn{min-width:82px}
 .toast{background:#27213a;border:1px solid #bda4ff40}.search-wrap{margin:20px 0}.lang{color:#777990}
 @media(min-width:600px){.app{padding-top:28px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:42px 38px;min-height:340px}}
@@ -112,7 +113,13 @@ body:before{opacity:.12}
 <section id="photos" class="screen hidden"><div class="section-head"><h2 data-i18n="photos">🖼️ صوري وذكرياتي</h2><button class="btn secondary" onclick="show('universe')" data-i18n="back">رجوع</button></div><p class="muted" data-i18n="photoHint">اختار صور من جهازك. الصور بتفضل على نفس المتصفح والجهاز.</p><label class="btn primary" style="display:inline-block;margin:8px 0 16px"><span data-i18n="addPhotos">＋ أضف صور</span><input id="photoInput" type="file" accept="image/*" multiple hidden onchange="addPhotos(event)"></label><div id="photosGrid" class="photo-grid"></div></section>
 <section id="goals" class="screen hidden"><div class="section-head"><h2 data-i18n="goals">🎯 أهدافي</h2><button class="btn secondary" onclick="show('universe')" data-i18n="back">رجوع</button></div><form class="form" onsubmit="addGoal(event)"><input class="field" id="goalText" data-placeholder="newGoal" placeholder="هدف جديد..." required><button class="btn primary" data-i18n="addGoal">أضف الهدف</button></form><div id="goalsList" class="list"></div></section>
 <section id="projects" class="screen hidden"><div class="section-head"><h2 data-i18n="projects">🪐 مشاريعي</h2><button class="btn secondary" onclick="show('universe')" data-i18n="back">رجوع</button></div><div id="projectsList" class="list"></div><form class="form" onsubmit="addEntry(event,'projects')"><input class="field" id="projectsTitle" data-placeholder="projectName" placeholder="اسم المشروع"><textarea class="field" id="projectsBody" data-placeholder="projectDesc" placeholder="فكرة المشروع وخطواته..." required></textarea><button class="btn primary" data-i18n="saveProject">احفظ المشروع</button></form></section>
-<section id="ai" class="screen hidden"><div class="section-head"><h2>✨ PERSONAL AI</h2><button class="btn secondary" onclick="show('home')" data-i18n="back">رجوع</button></div><div class="card"><div class="eyebrow">✦ YOUR PRIVATE AI SPACE</div><h2 style="margin:0 0 7px;font-size:24px" data-i18n="aiHello">أهلاً، أنا مساعدك الشخصي.</h2><p class="muted" style="line-height:1.8;margin:0" data-i18n="aiNotice">مساعدك الذكي لتنظيم أفكارك والتعلم والتخطيط.</p><div class="muted" id="aiStatus" style="margin-top:13px">● غير متصل — أضف رابط الخادم من الإعدادات</div></div><div class="chips"><button class="chip" onclick="quickPrompt(0)">✦ نظم أفكاري</button><button class="chip" onclick="quickPrompt(1)">📚 اشرح لي</button><button class="chip" onclick="quickPrompt(2)">🚀 طور مشروعي</button></div><div class="chat" id="chat" aria-live="polite"><div class="bubble ai" data-i18n="aiWelcome">أنا مساعدك داخل MY UNIVERSE. اسألني أو ابدأ باقتراح من فوق.</div></div><form class="chatbar" onsubmit="sendChat(event)"><textarea id="chatInput" class="field" rows="1" data-placeholder="messageAI" placeholder="اكتب رسالتك..."></textarea><button class="btn primary" id="sendAI" data-i18n="send">إرسال</button></form></section>
+<section id="ai" class="screen hidden"><div class="section-head"><h2>✨ PERSONAL AI</h2><button class="btn secondary" onclick="show('home')" data-i18n="back">رجوع</button></div><div class="card"><div class="eyebrow">✦ YOUR PRIVATE AI SPACE</div><h2 style="margin:0 0 7px;font-size:24px" data-i18n="aiHello">أهلاً، أنا مساعدك الشخصي.</h2><p class="muted" style="line-height:1.8;margin:0" data-i18n="aiNotice">مساعدك الذكي لتنظيم أفكارك والتعلم والتخطيط.</p><div class="muted" id="aiStatus" style="margin-top:13px">● غير متصل — أضف رابط الخادم من الإعدادات</div></div><div class="chips"><button class="chip" onclick="quickPrompt(0)">✦ نظم أفكاري</button><button class="chip" onclick="quickPrompt(1)">📚 اشرح لي</button><button class="chip" onclick="quickPrompt(2)">🚀 طور مشروعي</button></div><div class="voice-card card">
+ <div class="voice-head"><span>🎙️ LIVE VOICE</span><span class="muted" id="voiceStatus">جاهز للمكالمة الصوتية</span></div>
+ <p class="muted" style="line-height:1.7">اتكلم مع مساعدك مباشرة. اسمح باستخدام الميكروفون عند بدء المكالمة.</p>
+ <div class="voice-actions"><button class="btn primary" id="voiceStart" onclick="startVoiceChat()">ابدأ مكالمة صوتية</button><button class="btn secondary" id="voiceStop" onclick="stopVoiceChat()" disabled>إنهاء المكالمة</button></div>
+ <audio id="voiceRemoteAudio" autoplay playsinline></audio>
+</div>
+<div class="chat" id="chat" aria-live="polite"><div class="bubble ai" data-i18n="aiWelcome">أنا مساعدك داخل MY UNIVERSE. اسألني أو ابدأ باقتراح من فوق.</div></div><form class="chatbar" onsubmit="sendChat(event)"><textarea id="chatInput" class="field" rows="1" data-placeholder="messageAI" placeholder="اكتب رسالتك..."></textarea><button class="btn primary" id="sendAI" data-i18n="send">إرسال</button></form></section>
 
 <section id="terminal" class="screen hidden">
  <div class="section-head"><h2>⌘ RED MATRIX TERMINAL</h2><button class="btn secondary" onclick="show('home')" data-i18n="back">رجوع</button></div>
@@ -189,6 +196,41 @@ async function sendChat(e){e.preventDefault();const input=$('chatInput'),v=input
 if(!endpoint){$('aiTyping').textContent='واجهة المساعد جاهزة، لكن لسه محتاجين ننشر خادم AI ونضيف رابطه من الإعدادات. مفتاح API لا تكتبه هنا.';btn.disabled=false;return}
 try{const response=await fetch(endpoint+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:aiHistory.slice(-12)})});const data=await response.json();if(!response.ok)throw new Error(data.error||'تعذر الاتصال');const answer=String(data.reply||'لم يصل رد من المساعد.');$('aiTyping').textContent=answer;aiHistory.push({role:'assistant',content:answer});setAIStatus('المساعد جاهز',true)}catch(err){$('aiTyping').textContent='مش قادر أوصل للخادم دلوقتي. راجع رابط الخادم وإعداداته.';setAIStatus('تعذر الاتصال بالخادم')}finally{btn.disabled=false;box.scrollTop=box.scrollHeight}}
 function loadAISettings(){const ep=localStorage.getItem('mu_ai_endpoint');if($('aiEndpoint')&&ep)$('aiEndpoint').value=ep;if($('aiStatus'))setAIStatus(ep?'تم ضبط رابط الخادم — جرّب إرسال رسالة':'غير متصل — أضف رابط الخادم من الإعدادات')}
+let voicePeer=null,voiceStream=null,voiceEvents=null;
+function voiceStatus(message){const el=$('voiceStatus');if(el)el.textContent=message}
+async function startVoiceChat(){
+ const endpoint=localStorage.getItem('mu_ai_endpoint');
+ if(!endpoint){voiceStatus('اضبط رابط الخادم من الإعدادات أولاً');toast('رابط الخادم غير مضبوط');return}
+ if(!navigator.mediaDevices?.getUserMedia||!window.RTCPeerConnection){voiceStatus('المتصفح لا يدعم المكالمة الصوتية');return}
+ const start=$('voiceStart'),stop=$('voiceStop');start.disabled=true;voiceStatus('بنجهز الاتصال...');
+ try{
+  const tokenResponse=await fetch(endpoint+'/api/realtime-token',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+  const tokenData=await tokenResponse.json();if(!tokenResponse.ok||!tokenData.token)throw new Error(tokenData.error||'تعذر تجهيز جلسة الصوت');
+  voiceStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  voicePeer=new RTCPeerConnection();
+  voicePeer.ontrack=e=>{$('voiceRemoteAudio').srcObject=e.streams[0];$('voiceRemoteAudio').play().catch(()=>{})};
+  voicePeer.onconnectionstatechange=()=>{if(voicePeer&&['failed','disconnected','closed'].includes(voicePeer.connectionState))voiceStatus('الاتصال انقطع')};
+  voiceEvents=voicePeer.createDataChannel('oai-events');
+  voiceEvents.onopen=()=>voiceStatus('المكالمة شغالة — اتكلم براحتك');
+  voiceEvents.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='error')voiceStatus('حصل خطأ في الصوت');}catch{}};
+  voiceStream.getTracks().forEach(track=>voicePeer.addTrack(track,voiceStream));
+  const offer=await voicePeer.createOffer();await voicePeer.setLocalDescription(offer);
+  const answerResponse=await fetch('https://api.openai.com/v1/realtime/calls?model=gpt-realtime-2.1',{method:'POST',headers:{Authorization:'Bearer '+tokenData.token,'Content-Type':'application/sdp'},body:offer.sdp});
+  if(!answerResponse.ok)throw new Error('خدمة الصوت رفضت الاتصال');
+  const answer=await answerResponse.text();await voicePeer.setRemoteDescription({type:'answer',sdp:answer});
+  stop.disabled=false;voiceStatus('جاري توصيل الصوت...');
+ }catch(err){stopVoiceChat();voiceStatus(err.message||'تعذر بدء المكالمة');toast('راجع إذن الميكروفون ورابط الخادم')}
+ finally{start.disabled=false}
+}
+function stopVoiceChat(){
+ if(voiceEvents){try{voiceEvents.close()}catch{}voiceEvents=null}
+ if(voicePeer){try{voicePeer.close()}catch{}voicePeer=null}
+ if(voiceStream){voiceStream.getTracks().forEach(t=>t.stop());voiceStream=null}
+ const audio=$('voiceRemoteAudio');if(audio){audio.pause();audio.srcObject=null}
+ const stop=$('voiceStop'),start=$('voiceStart');if(stop)stop.disabled=true;if(start)start.disabled=false;
+ if($('voiceStatus'))voiceStatus('تم إنهاء المكالمة');
+}
+
 
 let installPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;const b=$('installBtn');if(b)b.classList.remove('hidden')});window.addEventListener('appinstalled',()=>{installPrompt=null;toast(lang==='ar'?'تم تثبيت التطبيق':'App installed')});async function installApp(){if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null}else toast(lang==='ar'?'على iPhone: اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية':'Use your browser menu and choose Install app or Add to Home screen')};if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 function exportData(){const data={version:2,ideas:read('ideas'),writing:read('writing'),projects:read('projects'),goals:read('goals')};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-universe-backup.json';a.click();URL.revokeObjectURL(a.href)}
