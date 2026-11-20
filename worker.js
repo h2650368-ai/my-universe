@@ -2,7 +2,7 @@ const ALLOWED_ORIGINS = new Set(["https://h2650368-ai.github.io", "capacitor://l
 const TEXT_MODEL = "gpt-6-luna";
 const REALTIME_MODEL = "gpt-realtime-2.1";
 
-const PERSONA = `أنت المساعد الشخصي داخل MY UNIVERSE. اتكلم بالمصري البسيط لما المستخدم يتكلم بالمصري، وخليك مباشر وودود ومن غير مبالغة أو مجاملات مصطنعة. افهم أسلوبه تدريجيًا من الرسائل المتاحة، لكن لا تدّعي إنك تعرفه خارج المعلومات التي يشاركها أو إنك تحفظ كل شيء تلقائيًا. لا تحفظ أي معلومة شخصية في ذاكرة دائمة إلا بموافقة صريحة من المستخدم. وضّح أنك ذكاء اصطناعي ولست إنسانًا. احترم الخصوصية، ولا تطلب كلمات مرور أو مفاتيح سرية.`;
+const PERSONA = "أنت المساعد الشخصي داخل MY UNIVERSE. اتكلم بالمصري البسيط لما المستخدم يتكلم بالمصري، وخليك مباشر وودود ومن غير مبالغة أو مجاملات مصطنعة. افهم أسلوبه تدريجيًا من الرسائل المتاحة، لكن لا تدّعي إنك تعرفه خارج المعلومات التي يشاركها أو إنك تحفظ كل شيء تلقائيًا. لا تحفظ أي معلومة شخصية في ذاكرة دائمة إلا بموافقة صريحة من المستخدم. وضّح أنك ذكاء اصطناعي ولست إنسانًا. احترم الخصوصية، ولا تطلب كلمات مرور أو مفاتيح سرية.";
 
 function cors(origin) {
   const allowedOrigin = ALLOWED_ORIGINS.has(origin) ? origin : "https://h2650368-ai.github.io";
@@ -18,6 +18,17 @@ function json(data, status, origin) {
     status,
     headers: { ...cors(origin), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }
   });
+}
+function cleanMemories(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 20).filter(x => typeof x === "string")
+    .map(x => x.trim().slice(0, 500)).filter(Boolean);
+}
+function withMemories(persona, memories) {
+  if (!memories.length) return persona;
+  return persona + "\n\nمعلومات وافق المستخدم على حفظها:\n- " +
+    memories.join("\n- ") +
+    "\nاستخدمها فقط عندما تفيد الرد، ولا تفترض معلومات أخرى عنها.";
 }
 function validOrigin(request) {
   return ALLOWED_ORIGINS.has(request.headers.get("Origin") || "");
@@ -38,6 +49,9 @@ export default {
     if (!env.OPENAI_API_KEY) return json({ error: "AI service is not configured" }, 503, origin);
 
     if (url.pathname === "/api/realtime-token") {
+      let voiceBody = {};
+      try { voiceBody = await request.json(); } catch { return json({ error: "Invalid JSON" }, 400, origin); }
+      const instructions = withMemories(PERSONA, cleanMemories(voiceBody.memories));
       try {
         const upstream = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
           method: "POST",
@@ -50,7 +64,7 @@ export default {
             session: {
               type: "realtime",
               model: REALTIME_MODEL,
-              instructions: PERSONA,
+              instructions,
               output_modalities: ["audio"],
               audio: {
                 input: { turn_detection: { type: "server_vad" } },
@@ -97,7 +111,7 @@ export default {
         },
         body: JSON.stringify({
           model: TEXT_MODEL,
-          instructions: PERSONA,
+          instructions: withMemories(PERSONA, cleanMemories(body.memories)),
           input: messages,
           max_output_tokens: 600
         })
