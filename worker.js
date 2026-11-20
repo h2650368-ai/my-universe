@@ -1,12 +1,13 @@
-const SITE_ORIGIN = "https://h2650368-ai.github.io";
+const ALLOWED_ORIGINS = new Set(["https://h2650368-ai.github.io", "capacitor://localhost", "http://localhost", "https://localhost"]);
 const TEXT_MODEL = "gpt-6-luna";
 const REALTIME_MODEL = "gpt-realtime-2.1";
 
 const PERSONA = `أنت المساعد الشخصي داخل MY UNIVERSE. اتكلم بالمصري البسيط لما المستخدم يتكلم بالمصري، وخليك مباشر وودود ومن غير مبالغة أو مجاملات مصطنعة. افهم أسلوبه تدريجيًا من الرسائل المتاحة، لكن لا تدّعي إنك تعرفه خارج المعلومات التي يشاركها أو إنك تحفظ كل شيء تلقائيًا. لا تحفظ أي معلومة شخصية في ذاكرة دائمة إلا بموافقة صريحة من المستخدم. وضّح أنك ذكاء اصطناعي ولست إنسانًا. احترم الخصوصية، ولا تطلب كلمات مرور أو مفاتيح سرية.`;
 
 function cors(origin) {
+  const allowedOrigin = ALLOWED_ORIGINS.has(origin) ? origin : "https://h2650368-ai.github.io";
   return {
-    "Access-Control-Allow-Origin": origin === SITE_ORIGIN ? origin : SITE_ORIGIN,
+    "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Vary": "Origin"
@@ -19,7 +20,7 @@ function json(data, status, origin) {
   });
 }
 function validOrigin(request) {
-  return request.headers.get("Origin") === SITE_ORIGIN;
+  return ALLOWED_ORIGINS.has(request.headers.get("Origin") || "");
 }
 
 export default {
