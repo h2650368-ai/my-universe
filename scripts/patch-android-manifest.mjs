@@ -9,7 +9,7 @@ const permissions = [
 ];
 for (const permission of permissions) {
   const tag = `<uses-permission android:name="${permission}" />`;
-  if (!xml.includes(tag)) xml = xml.replace("<manifest", "<manifest\\n    " + tag);
+  if (!xml.includes(tag)) xml = xml.replace("<manifest", "<manifest\n    " + tag);
 }
 writeFileSync(path, xml);
 console.log("Android permissions added.");
