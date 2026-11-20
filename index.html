@@ -260,10 +260,11 @@ function soundAlarm(tone){
  let n=0;const play=()=>{if(!audioCtx||n>=pattern.length*3)return;const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type=tone==='bell'?'sine':'square';osc.frequency.value=pattern[n%pattern.length];gain.gain.setValueAtTime(.0001,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.16,audioCtx.currentTime+.025);gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.28);osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+.3);n++};play();ringToneTimer=setInterval(play,420);
  }catch{}
 }
+function toLocalDateTime(d){const pad=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())}
 function triggerAlarm(alarm){
  ringingAlarmId=alarm.id;$('ringingTitle').textContent=alarm.title;$('ringingTime').textContent=new Date().toLocaleTimeString();$('alarmRinging').classList.remove('hidden');
  soundAlarm(alarm.tone);try{navigator.vibrate?.([300,150,300,150,600])}catch{}showAlarmNotification(alarm);
- const next=alarmsRead().map(a=>a.id===alarm.id?(a.repeat==='daily'?{...a,when:new Date(alarmDateValue(a.when)+86400000).toISOString().slice(0,16)}:{...a,active:false}):a);save('alarms',next);renderAlarms();
+ const next=alarmsRead().map(a=>a.id===alarm.id?(a.repeat==='daily'?{...a,when:toLocalDateTime(new Date(alarmDateValue(a.when)+86400000))}:{...a,active:false}):a);save('alarms',next);renderAlarms();
 }
 function stopAlarmNow(){clearInterval(ringToneTimer);ringToneTimer=null;try{audioCtx?.close()}catch{}audioCtx=null;try{navigator.vibrate?.(0)}catch{}$('alarmRinging').classList.add('hidden');ringingAlarmId=null}
 function snoozeAlarm(){if(ringingAlarmId){const a=alarmsRead().find(x=>x.id===ringingAlarmId);if(a){const list=alarmsRead();list.push({...a,id:Date.now(),when:new Date(Date.now()+5*60000).toISOString().slice(0,16),repeat:'once',active:true});save('alarms',list)}}stopAlarmNow();renderAlarms();toast('تم التأجيل 5 دقائق')}
