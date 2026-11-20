@@ -95,11 +95,21 @@ export default {
     }
     const messages = [];
     for (const item of body.messages) {
-      if (!item || !["user", "assistant"].includes(item.role) ||
-          typeof item.content !== "string" || !item.content.trim() || item.content.length > 4000) {
-        return json({ error: "Invalid message format" }, 400, origin);
+      if (!item || !["user", "assistant"].includes(item.role)) return json({ error: "Invalid message format" }, 400, origin);
+      if (typeof item.content === "string") {
+        if (!item.content.trim() || item.content.length > 4000) return json({ error: "Invalid message content" }, 400, origin);
+        messages.push({ role: item.role, content: item.content.trim() });
+        continue;
       }
-      messages.push({ role: item.role, content: item.content.trim() });
+      if (item.role !== "user" || !Array.isArray(item.content) || item.content.length < 1 || item.content.length > 8) return json({ error: "Invalid attachment message" }, 400, origin);
+      const parts = [];
+      for (const part of item.content) {
+        if (part?.type === "input_text" && typeof part.text === "string" && part.text.trim() && part.text.length <= 50000) parts.push({ type: "input_text", text: part.text });
+        else if (part?.type === "input_image" && typeof part.image_url === "string" && /^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(part.image_url) && part.image_url.length <= 12000000) parts.push({ type: "input_image", image_url: part.image_url });
+        else if (part?.type === "input_file" && typeof part.filename === "string" && part.filename.toLowerCase().endsWith(".pdf") && typeof part.file_data === "string" && /^data:application\/pdf;base64,/i.test(part.file_data) && part.file_data.length <= 12000000) parts.push({ type: "input_file", filename: part.filename.slice(0,120), file_data: part.file_data });
+        else return json({ error: "Unsupported or oversized attachment" }, 400, origin);
+      }
+      messages.push({ role: item.role, content: parts });
     }
     if (messages[messages.length - 1].role !== "user") {
       return json({ error: "The last message must be from the user" }, 400, origin);
